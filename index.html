@@ -1,117 +1,287 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#5b5ce2">
-<title>Campus Lost & Found</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="app">
-<header>
-  <nav class="nav">
-    <div class="brand" onclick="go('home')">
-      <div class="logo" aria-hidden="true">⌕</div><span>Campus Lost &amp; Found</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#5b5ce2" />
+    <title>Campus Lost & Found</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <nav class="nav">
+          <div class="brand" onclick="go('home')">
+            <div class="logo" aria-hidden="true">⌕</div>
+            <span>Campus Lost &amp; Found</span>
+          </div>
+          <div class="navlinks" id="navlinks">
+            <button data-page="home" onclick="go('home')">Home</button>
+            <button data-page="browse" onclick="go('browse')">Browse</button>
+            <button data-page="report" onclick="go('report')">
+              Report Item
+            </button>
+            <button data-page="reports" onclick="go('reports')">
+              My Reports
+            </button>
+          </div>
+          <button
+            class="mobile-toggle"
+            onclick="toggleMobileNav()"
+            aria-label="Open navigation"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+        </nav>
+        <div class="mobile-nav" id="mobileNav">
+          <button onclick="go('home')">Home</button>
+          <button onclick="go('browse')">Browse</button>
+          <button onclick="go('report')">Report Item</button>
+          <button onclick="go('reports')">My Reports</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="home" class="page active">
+          <div class="hero">
+            <div>
+              <span class="eyebrow">✦ Built for campus communities</span>
+              <h1>Find what matters. Return what doesn't belong to you.</h1>
+              <p>
+                Lost something? Found something? Let's reunite it. Search campus
+                reports, share what you've found, and make getting belongings
+                back a little easier.
+              </p>
+              <div class="search-wrap">
+                <span class="search-icon">⌕</span>
+                <input
+                  id="homeSearch"
+                  placeholder="Search for a phone, ID card, backpack..."
+                  onkeydown="if (event.key === 'Enter') homeSearch();"
+                />
+                <button class="btn btn-primary" onclick="homeSearch()">
+                  Search
+                </button>
+              </div>
+              <div class="hero-actions">
+                <button class="btn btn-primary" onclick="go('report', 'lost')">
+                  ＋ I Lost Something
+                </button>
+                <button class="btn btn-soft" onclick="go('report', 'found')">
+                  ✦ I Found Something
+                </button>
+              </div>
+            </div>
+            <div class="hero-card">
+              <h3>One campus. One place.</h3>
+              <p>
+                Demo reports show how a student can go from search to recovery
+                in a few taps.
+              </p>
+              <div class="mini-stack">
+                <div class="mini-item">
+                  <div class="mini-icon">📱</div>
+                  <div>
+                    <strong>Black Samsung Galaxy</strong><br /><small
+                      >Found · Library</small
+                    >
+                  </div>
+                </div>
+                <div class="mini-item">
+                  <div class="mini-icon">🎒</div>
+                  <div>
+                    <strong>Black backpack</strong><br /><small
+                      >Lost · Student Center</small
+                    >
+                  </div>
+                </div>
+                <div class="mini-item">
+                  <div class="mini-icon">🎧</div>
+                  <div>
+                    <strong>Soundcore earpods</strong><br /><small
+                      >Found · Engineering Block</small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <div>
+              <h2>Campus at a glance</h2>
+              <p>A quick snapshot of the demo board.</p>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="num" id="statReported">0</div>
+              <div class="label">Items reported</div>
+            </div>
+            <div class="stat">
+              <div class="num" id="statReunited">0</div>
+              <div class="label">Items reunited</div>
+            </div>
+            <div class="stat">
+              <div class="num" id="statSearching">0</div>
+              <div class="label">Looking for owners</div>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <div>
+              <h2>Recent reports</h2>
+              <p>Fresh items from around campus.</p>
+            </div>
+            <button class="btn btn-ghost" onclick="go('browse')">
+              View all →
+            </button>
+          </div>
+          <div class="grid" id="recentGrid" aria-live="polite"></div>
+        </section>
+
+        <section id="browse" class="page">
+          <div class="page-title">
+            <h1>Browse items</h1>
+            <p>Search reports by item, category, or campus location.</p>
+          </div>
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span class="search-icon">⌕</span>
+              <input
+                id="browseSearch"
+                placeholder="Search items, categories, locations..."
+                oninput="renderBrowse()"
+              />
+            </div>
+            <div class="filters" id="filters"></div>
+          </div>
+          <div class="grid" id="browseGrid" aria-live="polite"></div>
+        </section>
+
+        <section id="details" class="page">
+          <button class="btn btn-ghost back" onclick="backToBrowse()">
+            ← Back to items
+          </button>
+          <div class="detail" id="detailContent"></div>
+        </section>
+
+        <section id="report" class="page">
+          <div class="page-title">
+            <h1>Report an item</h1>
+            <p>
+              Give your campus community enough detail to recognize and recover
+              it.
+            </p>
+          </div>
+          <div class="form-card">
+            <form id="reportForm" onsubmit="submitReport(event)">
+              <div class="form-grid">
+                <div class="field full">
+                  <label>Report type</label>
+                  <div class="segment">
+                    <button
+                      type="button"
+                      id="lostBtn"
+                      onclick="setReportType('Lost')"
+                    >
+                      I lost it
+                    </button>
+                    <button
+                      type="button"
+                      id="foundBtn"
+                      onclick="setReportType('Found')"
+                    >
+                      I found it
+                    </button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="itemName">Item name</label>
+                  <input
+                    id="itemName"
+                    required
+                    placeholder="e.g. Blue water bottle"
+                  />
+                </div>
+                <div class="field">
+                  <label for="category">Category</label>
+                  <select id="category" required>
+                    <option>Electronics</option>
+                    <option>Documents</option>
+                    <option>Accessories</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="location">Location</label>
+                  <input
+                    id="location"
+                    required
+                    placeholder="e.g. Main Library, 2nd floor"
+                  />
+                </div>
+                <div class="field">
+                  <label for="date">Date</label>
+                  <input id="date" type="date" required />
+                </div>
+                <div class="field full">
+                  <label for="description">Description</label>
+                  <textarea
+                    id="description"
+                    required
+                    placeholder="Color, brand, distinctive marks, where it was seen, etc."
+                  ></textarea>
+                </div>
+                <div class="field">
+                  <label for="contact">Contact information</label>
+                  <input
+                    id="contact"
+                    required
+                    placeholder="demo.student@campus.example"
+                  />
+                </div>
+                <div class="field">
+                  <label for="image">Optional image</label>
+                  <input id="image" type="file" accept="image/*" />
+                  <span class="file-note"
+                    >MVP Demo: Image uploads are simulated. Selected files are
+                    not transmitted or saved.</span
+                  >
+                </div>
+              </div>
+              <div class="notice">
+                Demo mode: use fictional contact information only. No data is
+                sent to a server.
+              </div>
+              <button
+                class="btn btn-primary"
+                style="margin-top: 18px"
+                type="submit"
+              >
+                Submit Report
+              </button>
+              <div id="successBox"></div>
+            </form>
+          </div>
+        </section>
+
+        <section id="reports" class="page">
+          <div class="page-title">
+            <h1>My reports</h1>
+            <p>Demo reports associated with this browser.</p>
+          </div>
+          <div class="reports" id="myReports"></div>
+        </section>
+      </main>
+      <footer>
+        Campus Lost &amp; Found · MVP demo · Contact details and reports shown
+        here are fictional demonstration data.
+      </footer>
     </div>
-    <div class="navlinks" id="navlinks">
-      <button data-page="home" onclick="go('home')">Home</button>
-      <button data-page="browse" onclick="go('browse')">Browse</button>
-      <button data-page="report" onclick="go('report')">Report Item</button>
-      <button data-page="reports" onclick="go('reports')">My Reports</button>
-    </div>
-    <button class="mobile-toggle" onclick="toggleMobileNav()" aria-label="Open navigation">☰</button>
-  </nav>
-  <div class="mobile-nav" id="mobileNav">
-    <button onclick="go('home')">Home</button><button onclick="go('browse')">Browse</button>
-    <button onclick="go('report')">Report Item</button><button onclick="go('reports')">My Reports</button>
-  </div>
-</header>
-
-<main>
-<section id="home" class="page active">
-  <div class="hero">
-    <div>
-      <span class="eyebrow">✦ Built for campus communities</span>
-      <h1>Find what matters. Return what doesn't belong to you.</h1>
-      <p>Lost something? Found something? Let's reunite it. Search campus reports, share what you've found, and make getting belongings back a little easier.</p>
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span><input id="homeSearch" placeholder="Search for a phone, ID card, backpack..." onkeydown="if(event.key==='Enter') homeSearch()">
-        <button class="btn btn-primary" onclick="homeSearch()">Search</button>
-      </div>
-      <div class="hero-actions">
-        <button class="btn btn-primary" onclick="go('report','lost')">＋ I Lost Something</button>
-        <button class="btn btn-soft" onclick="go('report','found')">✦ I Found Something</button>
-      </div>
-    </div>
-    <div class="hero-card">
-      <h3>One campus. One place.</h3>
-      <p>Demo reports show how a student can go from search to recovery in a few taps.</p>
-      <div class="mini-stack">
-        <div class="mini-item"><div class="mini-icon">📱</div><div><strong>Black Samsung Galaxy</strong><br><small>Found · Library</small></div></div>
-        <div class="mini-item"><div class="mini-icon">🎒</div><div><strong>Black backpack</strong><br><small>Lost · Student Center</small></div></div>
-        <div class="mini-item"><div class="mini-icon">🎧</div><div><strong>Soundcore earpods</strong><br><small>Found · Engineering Block</small></div></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-head"><div><h2>Campus at a glance</h2><p>A quick snapshot of the demo board.</p></div></div>
-  <div class="stats">
-    <div class="stat"><div class="num" id="statReported">0</div><div class="label">Items reported</div></div>
-    <div class="stat"><div class="num" id="statReunited">0</div><div class="label">Items reunited</div></div>
-    <div class="stat"><div class="num" id="statSearching">0</div><div class="label">Looking for owners</div></div>
-  </div>
-
-  <div class="section-head"><div><h2>Recent reports</h2><p>Fresh items from around campus.</p></div><button class="btn btn-ghost" onclick="go('browse')">View all →</button></div>
-  <div class="grid" id="recentGrid"></div>
-</section>
-
-<section id="browse" class="page">
-  <div class="page-title"><h1>Browse items</h1><p>Search reports by item, category, or campus location.</p></div>
-  <div class="toolbar">
-    <div class="search-wrap"><span class="search-icon">⌕</span><input id="browseSearch" placeholder="Search items, categories, locations..." oninput="renderBrowse()"></div>
-    <div class="filters" id="filters"></div>
-  </div>
-  <div class="grid" id="browseGrid"></div>
-</section>
-
-<section id="details" class="page">
-  <button class="btn btn-ghost back" onclick="backToBrowse()">← Back to items</button>
-  <div class="detail" id="detailContent"></div>
-</section>
-
-<section id="report" class="page">
-  <div class="page-title"><h1>Report an item</h1><p>Give your campus community enough detail to recognize and recover it.</p></div>
-  <div class="form-card">
-    <form id="reportForm" onsubmit="submitReport(event)">
-      <div class="form-grid">
-        <div class="field full"><label>Report type</label><div class="segment">
-          <button type="button" id="lostBtn" onclick="setReportType('Lost')">I lost it</button>
-          <button type="button" id="foundBtn" onclick="setReportType('Found')">I found it</button>
-        </div></div>
-        <div class="field"><label for="itemName">Item name</label><input id="itemName" required placeholder="e.g. Blue water bottle"></div>
-        <div class="field"><label for="category">Category</label><select id="category" required><option>Electronics</option><option>Documents</option><option>Accessories</option><option>Other</option></select></div>
-        <div class="field"><label for="location">Location</label><input id="location" required placeholder="e.g. Main Library, 2nd floor"></div>
-        <div class="field"><label for="date">Date</label><input id="date" type="date" required></div>
-        <div class="field full"><label for="description">Description</label><textarea id="description" required placeholder="Color, brand, distinctive marks, where it was seen, etc."></textarea></div>
-        <div class="field"><label for="contact">Contact information</label><input id="contact" required placeholder="demo.student@campus.example"></div>
-        <div class="field"><label for="image">Optional image</label><input id="image" type="file" accept="image/*"><span class="file-note">For this MVP the image is shown as an icon/placeholder and is not uploaded.</span></div>
-      </div>
-      <div class="notice">Demo mode: use fictional contact information only. No data is sent to a server.</div>
-      <button class="btn btn-primary" style="margin-top:18px" type="submit">Submit Report</button>
-      <div id="successBox"></div>
-    </form>
-  </div>
-</section>
-
-<section id="reports" class="page">
-  <div class="page-title"><h1>My reports</h1><p>Demo reports associated with this browser.</p></div>
-  <div class="reports" id="myReports"></div>
-</section>
-</main>
-<footer>Campus Lost &amp; Found · MVP demo · Contact details and reports shown here are fictional demonstration data.</footer>
-</div>
 
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
